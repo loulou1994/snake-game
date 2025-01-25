@@ -31,7 +31,7 @@ class Snake_Segment(pg.sprite.Sprite):
 class Snake(pg.sprite.Group):
     _segments: List
 
-    def init(self, head_pos: Vector2, size: int, length: int = 3):
+    def __init__(self, head_pos: Vector2, size: int, length: int = 3):
         self._size = size
         self._head_pos = head_pos
         self._segments = []
@@ -94,10 +94,14 @@ def main():
         pg.mixer = None
 
     screen = pg.display.set_mode(SCREENRECT.size)
-    # screen.fill("red")
+    backround = pg.Surface(SCREENRECT.size)
+    screen.blit(backround)
 
     pg.display.flip()
+
     clock = pg.time.Clock()
+
+    snake = Snake(Vector2(90, 90), SNAKE_SIZE)
 
     running = True
     while running:
@@ -107,6 +111,12 @@ def main():
             
             if event.type == pg.QUIT:
                 exit(0)
+        
+        snake.clear(screen, backround)
+
+        dirt_rect =  snake.draw(screen)
+
+        pg.display.update(dirt_rect)
 
         pg.display.update()
         print(running)
