@@ -1,22 +1,16 @@
 from typing import List
-# from enum import Enum, unique
+from enum import Enum, unique
 import pygame as pg
 from pygame.math import Vector2
 
 SCREENRECT = pg.Rect(0, 0, 600, 450)
 SNAKE_SIZE = 20
-
 DIRECTIONS = {
     pg.K_UP: Vector2(0, -1),
     pg.K_DOWN: Vector2(0, 1),
     pg.K_LEFT: Vector2(-1, 0),
     pg.K_RIGHT: Vector2(1, 0)
 }
-    # UP: Vector2 = Vector2(0, -1)
-    # DOWN: Vector2 = Vector2(0, 1)
-    # RIGHT: Vector2 = Vector2(1, 0)
-    # LEFT: Vector2 = Vector2(-1, 0)
-
 
 class Snake_Segment(pg.sprite.Sprite):
 
@@ -100,11 +94,12 @@ def main():
         pg.mixer = None
 
     screen = pg.display.set_mode(SCREENRECT.size)
+
     backround = pg.Surface(SCREENRECT.size)
     backround.fill("white")
 
-    screen.blit(backround, Vector2(0, 0))
-    pg.display.flip()
+    # screen.blit(backround, Vector2(0, 0))
+    # pg.display.flip()
 
     clock = pg.time.Clock()
 
@@ -120,12 +115,18 @@ def main():
             if event.type == pg.QUIT:
                 exit(0)
 
-        snake.clear(screen, backround)
-        
+            if event.type == pg.KEYDOWN and event.key in DIRECTIONS:
+                new_direction = DIRECTIONS[event.key]
+                snake.set_direction(new_direction)
+
+        # snake.clear(screen, backround)
+        screen.fill((0, 0, 0))
+                
         snake.move()
 
         dirt_rect = snake.draw(screen)
 
+        print(dirt_rect)
         pg.display.update(dirt_rect)
 
         clock.tick(8)
