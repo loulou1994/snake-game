@@ -1,16 +1,28 @@
 from typing import List
-from enum import Enum, unique
+from random import randint
+
 import pygame as pg
 from pygame.math import Vector2
 
 SCREENRECT = pg.Rect(0, 0, 600, 450)
-SNAKE_SIZE = 20
+SNAKE_SEGMENT_SIZE = 20
+BALL_SIZE = 20
 DIRECTIONS = {
     pg.K_UP: Vector2(0, -1),
     pg.K_DOWN: Vector2(0, 1),
     pg.K_LEFT: Vector2(-1, 0),
     pg.K_RIGHT: Vector2(1, 0)
 }
+
+class Ball(pg.sprite.Sprite):
+    def __init__(self, *args, **kwargs):
+        super().__init__(args, kwargs)
+        self.image = pg.Surface((BALL_SIZE, BALL_SIZE))
+        self.rect = self.image.get_rect()
+
+    def update(self):
+        for coord in {"x": SCREENRECT.x, "y": SCREENRECT.y}:
+            self.rect[coord] = randint(0, SCREENRECT[coord])
 
 class Snake_Segment(pg.sprite.Sprite):
 
@@ -95,15 +107,18 @@ def main():
 
     screen = pg.display.set_mode(SCREENRECT.size)
 
-    backround = pg.Surface(SCREENRECT.size)
-    backround.fill("white")
+    background = pg.Surface(SCREENRECT.size)
+    background.fill("white")
 
-    # screen.blit(backround, Vector2(0, 0))
-    # pg.display.flip()
+    screen.blit(background, (0, 0))
+    pg.display.flip()
 
     clock = pg.time.Clock()
 
-    snake = Snake(Vector2(90, 90), SNAKE_SIZE)
+    snake = Snake(Vector2(90, 90), SNAKE_SEGMENT_SIZE)
+    
+    # to draw the single ball
+    single_ball = pg.sprite.GroupSingle()
 
     # print(snake.sprites())
     running = True
@@ -119,14 +134,12 @@ def main():
                 new_direction = DIRECTIONS[event.key]
                 snake.set_direction(new_direction)
 
-        # snake.clear(screen, backround)
-        screen.fill((0, 0, 0))
+        snake.clear(screen, background)
                 
         snake.move()
 
         dirt_rect = snake.draw(screen)
 
-        print(dirt_rect)
         pg.display.update(dirt_rect)
 
         clock.tick(8)
