@@ -15,9 +15,10 @@ DIRECTIONS = {
 }
 
 class Ball(pg.sprite.Sprite):
-    def __init__(self, *args, **kwargs):
-        super().__init__(args, kwargs)
+    def __init__(self, *groups):
+        super().__init__(groups)
         self.image = pg.Surface((BALL_SIZE, BALL_SIZE))
+        self.image.fill("yellow")
         self.rect = self.image.get_rect()
 
     def update(self):
@@ -26,8 +27,8 @@ class Ball(pg.sprite.Sprite):
 
 class Snake_Segment(pg.sprite.Sprite):
 
-    def __init__(self, initial_pos: Vector2, size: int, *args, **kwargs):
-        super().__init__()
+    def __init__(self, initial_pos: Vector2, size: int, *groups):
+        super().__init__(groups) 
         self.image = pg.Surface((size, size))
         self.rect = self.image.fill((0, 255, 0))
         self.position = initial_pos
