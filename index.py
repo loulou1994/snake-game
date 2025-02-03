@@ -17,7 +17,8 @@ DIRECTIONS = {
 class Ball(pg.sprite.Sprite):
     def __init__(self, *groups):
         super().__init__(groups)
-        self.image = pg.Surface((BALL_SIZE, BALL_SIZE))
+        self.image = pg.Surface((BALL_SIZE, BALL_SIZE), pg.SRCALPHA)
+        pg.draw.rect(self.image, (255, 255, 0, 0), (0, 0, *BALL_SIZE), border_radius=10)
         self.image.fill("yellow")
         self.rect = self.image.get_rect()
 
@@ -28,7 +29,7 @@ class Ball(pg.sprite.Sprite):
 class Snake_Segment(pg.sprite.Sprite):
 
     def __init__(self, initial_pos: Vector2, size: int, *groups):
-        super().__init__(groups) 
+        super().__init__(groups)  # type: ignore
         self.image = pg.Surface((size, size))
         self.rect = self.image.fill((0, 255, 0))
         self.position = initial_pos
@@ -53,9 +54,8 @@ class Snake(pg.sprite.RenderUpdates):
             segment_pos = Vector2(
                 self._head_pos.x - (x * self._size), self._head_pos.y
             )
-            segment = Snake_Segment(segment_pos, self._size)
+            segment = Snake_Segment(segment_pos, self._size, self)
             self._segments.append(segment)
-            self.add(segment)
 
     def move(self) -> None:
         old_positions = [segment.position.copy() for segment in self._segments]
