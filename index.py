@@ -6,7 +6,7 @@ from pygame.math import Vector2
 
 SCREENRECT = pg.Rect(0, 0, 600, 450)
 SNAKE_SEGMENT_SIZE = 20
-BALL_SIZE = 20
+BALL_SIZE = 12
 DIRECTIONS = {
     pg.K_UP: Vector2(0, -1),
     pg.K_DOWN: Vector2(0, 1),
@@ -14,21 +14,26 @@ DIRECTIONS = {
     pg.K_RIGHT: Vector2(1, 0)
 }
 
+
+def random_coord(max_num):
+    return randint(0, max_num)
+
 class Ball(pg.sprite.Sprite):
     def __init__(self, *groups):
         super().__init__(groups)
-        self.image = pg.Surface((BALL_SIZE, BALL_SIZE))
-        self.image.fill("yellow")
-        self.rect = self.image.get_rect()
+        self.image = pg.Surface(((BALL_SIZE*2), (BALL_SIZE*2)), pg.SRCALPHA)
+        self.rect = self.image.get_rect(topleft=(random_coord(SCREENRECT.width-BALL_SIZE), random_coord(SCREENRECT.height-BALL_SIZE)))
+        pg.draw.circle(self.image, "black", (BALL_SIZE, BALL_SIZE), BALL_SIZE // 2)
 
     def update(self):
-        for coord in {"x": SCREENRECT.x, "y": SCREENRECT.y}:
-            self.rect[coord] = randint(0, SCREENRECT[coord])
+        for coord in {"w": SCREENRECT.width, "h": SCREENRECT.height}:
+            self.rect[coord] = random_coord(SCREENRECT[coord])
+
 
 class Snake_Segment(pg.sprite.Sprite):
 
     def __init__(self, initial_pos: Vector2, size: int, *groups):
-        super().__init__(groups) 
+        super().__init__(groups)  # type: ignore
         self.image = pg.Surface((size, size))
         self.rect = self.image.fill((0, 255, 0))
         self.position = initial_pos
@@ -117,10 +122,10 @@ def main():
     clock = pg.time.Clock()
 
     snake = Snake(Vector2(90, 90), SNAKE_SEGMENT_SIZE)
-    
-    # to draw the single ball
-    single_ball = pg.sprite.GroupSingle()
 
+    ball = pg.sprite.GroupSingle(Ball())
+
+    all = pg.sprite.RenderUpdates(snake, ball)
     # print(snake.sprites())
     running = True
     while running:
@@ -135,11 +140,11 @@ def main():
                 new_direction = DIRECTIONS[event.key]
                 snake.set_direction(new_direction)
 
-        snake.clear(screen, background)
-                
+        all.clear(screen, background)
+
         snake.move()
 
-        dirt_rect = snake.draw(screen)
+        dirt_rect = all.draw(screen)
 
         pg.display.update(dirt_rect)
 
