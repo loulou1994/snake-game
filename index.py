@@ -21,9 +21,9 @@ def random_coord(max_num):
 class Ball(pg.sprite.Sprite):
     def __init__(self, *groups):
         super().__init__(groups)
-        self.image = pg.Surface(((BALL_SIZE*2), (BALL_SIZE*2)), pg.SRCALPHA)
-        self.rect = self.image.get_rect(topleft=(random_coord(SCREENRECT.width-BALL_SIZE), random_coord(SCREENRECT.height-BALL_SIZE)))
-        pg.draw.circle(self.image, "black", (BALL_SIZE, BALL_SIZE), BALL_SIZE // 2)
+        self.image = pg.Surface((BALL_SIZE, BALL_SIZE))
+        self.image.fill("yellow")
+        self.rect = self.image.get_rect()
 
     def update(self):
         for coord in {"w": SCREENRECT.width, "h": SCREENRECT.height}:
@@ -58,9 +58,8 @@ class Snake(pg.sprite.RenderUpdates):
             segment_pos = Vector2(
                 self._head_pos.x - (x * self._size), self._head_pos.y
             )
-            segment = Snake_Segment(segment_pos, self._size)
+            segment = Snake_Segment(segment_pos, self._size, self)
             self._segments.append(segment)
-            self.add(segment)
 
     def move(self) -> None:
         old_positions = [segment.position.copy() for segment in self._segments]
