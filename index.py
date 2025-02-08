@@ -5,8 +5,8 @@ import pygame as pg
 from pygame.math import Vector2
 
 SCREENRECT = pg.Rect(0, 0, 600, 450)
-SNAKE_SEGMENT_SIZE = 20
-BALL_SIZE = 12
+SNAKE_SEGMENT_SIZE = 15
+BALL_SIZE = 20
 DIRECTIONS = {
     pg.K_UP: Vector2(0, -1),
     pg.K_DOWN: Vector2(0, 1),
@@ -21,9 +21,9 @@ def random_coord(max_num):
 class Ball(pg.sprite.Sprite):
     def __init__(self, *groups):
         super().__init__(groups)
-        self.image = pg.Surface((BALL_SIZE, BALL_SIZE))
-        self.image.fill("yellow")
-        self.rect = self.image.get_rect()
+        self.image = pg.Surface(((BALL_SIZE*2), (BALL_SIZE*2)), pg.SRCALPHA)
+        self.rect = self.image.get_rect(topleft=(random_coord(SCREENRECT.width-BALL_SIZE), random_coord(SCREENRECT.height-BALL_SIZE)))
+        pg.draw.circle(self.image, "black", (BALL_SIZE, BALL_SIZE), 8)
 
     def update(self):
         for coord in {"w": SCREENRECT.width, "h": SCREENRECT.height}:
@@ -45,7 +45,7 @@ class Snake_Segment(pg.sprite.Sprite):
 
 
 class Snake(pg.sprite.RenderUpdates):
-    _segments: List
+    _segments: List[Snake_Segment]
 
     def __init__(self, head_pos: Vector2, size: int, length: int = 3):
         super().__init__()
@@ -58,8 +58,9 @@ class Snake(pg.sprite.RenderUpdates):
             segment_pos = Vector2(
                 self._head_pos.x - (x * self._size), self._head_pos.y
             )
-            segment = Snake_Segment(segment_pos, self._size, self)
+            segment = Snake_Segment(segment_pos, self._size)
             self._segments.append(segment)
+            self.add(segment)
 
     def move(self) -> None:
         old_positions = [segment.position.copy() for segment in self._segments]
@@ -79,15 +80,19 @@ class Snake(pg.sprite.RenderUpdates):
             direction = last_segment.position - second_to_last.position
             new_pos = last_segment.position + direction * self._size
         else:
-            new_pos = last_segment - self._direction * self._size
+            new_pos = last_segment.position - self._direction * self._size
 
         new_last_segment = Snake_Segment(new_pos, self._size)
         self._segments.append(new_last_segment)
         self.add(new_last_segment)
 
     def set_direction(self, new_direction: Vector2) -> None:
-        self._direction = new_direction
-
+        if not self.opposite_direction(new_direction):
+            self._direction = new_direction
+    
+    def opposite_direction(self, new_direction: Vector2):
+        return -self._direction == new_direction
+    
     def check_collision(self) -> bool:
         head_segment = self._segments[0]
 
@@ -126,6 +131,7 @@ def main():
 
     all = pg.sprite.RenderUpdates(snake, ball)
     # print(snake.sprites())
+    paused = False
     running = True
     while running:
         for event in pg.event.get():
@@ -135,13 +141,21 @@ def main():
             if event.type == pg.QUIT:
                 exit(0)
 
+            if event.type == pg.KEYDOWN and event.key == pg.K_p:
+                paused = not paused
+
             if event.type == pg.KEYDOWN and event.key in DIRECTIONS:
-                new_direction = DIRECTIONS[event.key]
-                snake.set_direction(new_direction)
+                if not paused:
+                    print("pressed")
+                    new_direction = DIRECTIONS[event.key]
+                    snake.set_direction(new_direction)
+                    
 
         all.clear(screen, background)
 
-        snake.move()
+        if not paused:
+            print(f"moved")
+            snake.move()
 
         dirt_rect = all.draw(screen)
 
