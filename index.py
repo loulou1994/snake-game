@@ -130,10 +130,12 @@ def main():
     ball = pg.sprite.GroupSingle(Ball())
 
     all = pg.sprite.RenderUpdates(snake, ball)
-    # print(snake.sprites())
+
     paused = False
     running = True
     while running:
+        can_change_direction = True
+
         for event in pg.event.get():
             if event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
                 exit(0)
@@ -143,18 +145,17 @@ def main():
 
             if event.type == pg.KEYDOWN and event.key == pg.K_p:
                 paused = not paused
-
+            
             if event.type == pg.KEYDOWN and event.key in DIRECTIONS:
-                if not paused:
-                    print("pressed")
+                if not paused and can_change_direction:
                     new_direction = DIRECTIONS[event.key]
                     snake.set_direction(new_direction)
+                    can_change_direction = False
                     
 
         all.clear(screen, background)
 
         if not paused:
-            print(f"moved")
             snake.move()
 
         dirt_rect = all.draw(screen)
